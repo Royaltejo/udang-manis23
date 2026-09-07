@@ -25,9 +25,6 @@
         .video-container {
             position: fixed;
             inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             background: #000;
         }
 
@@ -39,11 +36,24 @@
             background: #000;
         }
 
-        @media (orientation: landscape) {
-            video {
-                width: auto;
-                max-width: 100%;
-            }
+        .sound-button {
+            position: fixed;
+            left: 50%;
+            bottom: calc(30px + env(safe-area-inset-bottom));
+            transform: translateX(-50%);
+            z-index: 10;
+            padding: 12px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 30px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.75);
+            font: 600 14px Arial, sans-serif;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .sound-button.hidden {
+            display: none;
         }
     </style>
 </head>
@@ -57,39 +67,45 @@
             loop
             playsinline
             preload="auto"
-            controlslist="nodownload noplaybackrate"
-            disablepictureinpicture
         >
             <source src="./video.mp4" type="video/mp4">
         </video>
     </main>
 
+    <button id="tombolSuara" class="sound-button" type="button">
+        🔊 Tekan untuk mengaktifkan suara
+    </button>
+
     <script>
         const video = document.getElementById("videoUtama");
+        const tombolSuara = document.getElementById("tombolSuara");
 
-        async function mulaiVideo() {
+        async function putarVideo() {
             video.muted = true;
 
             try {
                 await video.play();
             } catch (error) {
-                document.addEventListener(
-                    "click",
-                    () => video.play(),
-                    { once: true }
-                );
+                console.log("Autoplay menunggu interaksi pengguna.");
             }
         }
 
-        document.addEventListener("DOMContentLoaded", mulaiVideo);
+        async function aktifkanSuara() {
+            video.muted = false;
+            video.volume = 1;
 
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) {
-                video.pause();
-            } else {
-                mulaiVideo();
+            try {
+                await video.play();
+                tombolSuara.classList.add("hidden");
+            } catch (error) {
+                console.log("Video belum dapat diputar.");
             }
-        });
+        }
+
+        tombolSuara.addEventListener("click", aktifkanSuara);
+        video.addEventListener("click", aktifkanSuara);
+
+        document.addEventListener("DOMContentLoaded", putarVideo);
     </script>
 </body>
 </html>
